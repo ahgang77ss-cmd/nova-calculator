@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ماشین حساب Nova</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#070b18" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Nova" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app">
+<div class="top">
+<div class="brand"><div class="logo">N</div><div><h1>ماشین حساب Nova</h1><p>سوپر اپ حساب · تبدیل · مالی · نمودار</p></div></div>
+<div class="ctl"><button class="ib" id="install" title="نصب اپ" hidden>⬇ نصب</button><button class="ib" id="th" title="تم">◐</button></div>
+</div>
+<div class="tabs">
+<button class="tab on" data-t="c">ماشین‌حساب</button>
+<button class="tab" data-t="v">تبدیل واحد</button>
+<button class="tab" data-t="f">مالی</button>
+<button class="tab" data-t="p">برنامه‌نویس</button>
+<button class="tab" data-t="h">سلامت</button>
+<button class="tab" data-t="g">نمودار</button>
+</div>
+<div id="t-c" class="grid">
+<div class="card">
+<div class="smart">
+<input id="q" placeholder="15% of 240 | (12+8)*3 | 20% off 99" autocomplete="off" />
+<button class="mbtn" id="mic" title="ورودی صوتی"><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm6-3a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.94V22h2v-2.06A8 8 0 0 0 20 12h-2z"/></svg></button>
+<button class="mbtn go" id="go">=</button>
+</div>
+<div id="interp">…</div>
+<div style="display:flex;align-items:center;gap:8px">
+<div id="big" style="flex:1">0</div>
+<button class="copyb" id="cpy">کپی</button>
+</div>
+<div class="chips" id="chips"></div>
+<div class="frow">
+<button data-ins="(">(</button><button data-ins=")">)</button>
+<button data-ins="^">^</button><button data-ins="sqrt(">sqrt</button>
+<button data-ins="pi">π</button><button data-ins="ans">ans</button>
+<button id="deg">DEG</button>
+</div>
+<div class="keys s5">
+<button class="k f" data-ins="sin(">sin</button><button class="k f" data-ins="cos(">cos</button>
+<button class="k f" data-ins="tan(">tan</button><button class="k f" data-ins="ln(">ln</button>
+<button class="k f" data-ins="log(">log</button>
+</div>
+<div class="keys">
+<button class="k d" id="c">C</button><button class="k f" id="bk">⌫</button><button class="k f" data-ins="%">%</button><button class="k o" data-ins="/">÷</button>
+<button class="k" data-ins="7">7</button><button class="k" data-ins="8">8</button><button class="k" data-ins="9">9</button><button class="k o" data-ins="*">×</button>
+<button class="k" data-ins="4">4</button><button class="k" data-ins="5">5</button><button class="k" data-ins="6">6</button><button class="k o" data-ins="-">−</button>
+<button class="k" data-ins="1">1</button><button class="k" data-ins="2">2</button><button class="k" data-ins="3">3</button><button class="k o" data-ins="+">+</button>
+<button class="k" data-ins="0">0</button><button class="k" data-ins=".">.</button><button class="k" data-ins="00">00</button><button class="k e" id="eq">=</button>
+</div>
+</div>
+<div class="card side">
+<div class="help">
+<div class="t">✨ دستیار هوشمند — چی بنویسم؟</div>
+<ul>
+<li><span>درصد از مبلغ</span><code>15% of 240</code></li>
+<li><span>تخفیف</span><code>20% off 99</code></li>
+<li><span>انعام</span><code>tip 15% on 85</code></li>
+<li><span>عبارت کامل</span><code>(12+8)*3/4</code></li>
+<li><span>توان و جذر</span><code>2^10 + sqrt(144)</code></li>
+<li><span>تبدیل سریع</span><code>5 km to mile</code></li>
+<li><span>مثلثات (درجه)</span><code>sin(30)+cos(60)</code></li>
+</ul>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="margin:0">تاریخچه</h3><button class="tab" id="ch" style="padding:6px 14px">پاک</button></div>
+<div id="hist"></div>
+<div class="hint">نتیجه زنده نمایش داده می‌شود. Enter یعنی ثبت. اعداد فارسی هم فهمیده می‌شوند.</div>
+</div>
+</div>
+<div id="t-v" class="card" hidden>
+<div class="sect" style="margin-top:0">تبدیل واحد — آفلاین و فوری</div>
+<div class="tabs" id="cats" style="margin:0 0 12px"></div>
+<div class="fgrid">
+<div><label class="lb">مقدار</label><input class="n ltr" id="cv" value="5" /></div>
+<div><label class="lb">از</label><select id="cf" class="ltr"></select></div>
+<div><label class="lb">به</label><select id="ct" class="ltr"></select></div>
+</div>
+<div class="bigout" id="cvOut">—</div>
+</div>
+<div id="t-f" class="grid" hidden>
+<div class="card">
+<div class="sect" style="margin-top:0">قسط وام ماهانه</div>
+<div class="fgrid">
+<div><label class="lb">مبلغ وام</label><input class="n ltr" id="ln-p" value="100000000" /></div>
+<div><label class="lb">سود سالانه ٪</label><input class="n ltr" id="ln-r" value="23" /></div>
+<div><label class="lb">تعداد ماه</label><input class="n ltr" id="ln-n" value="36" /></div>
+</div>
+<div class="bigout" id="ln-out">—</div>
+<div id="ln-tot"></div>
+</div>
+<div class="card">
+<div class="sect" style="margin-top:0">درصد: این عدد چند درصد آن عدد است؟</div>
+<div class="fgrid" style="grid-template-columns:1fr 1fr">
+<div><label class="lb">جزء</label><input class="n ltr" id="pc-a" value="45" /></div>
+<div><label class="lb">کل</label><input class="n ltr" id="pc-b" value="240" /></div>
+</div>
+<div class="bigout" id="pc-out">—</div>
+<div class="sub">برای تخفیف و انعام، کادر هوشمند بالای صفحه را امتحان کن.</div>
+</div>
+</div>
+<div id="t-p" class="card" hidden>
+<div class="sect" style="margin-top:0">مبدل مبنا</div>
+<div class="fgrid" style="grid-template-columns:2fr 1fr">
+<div><label class="lb">ورودی</label><input class="n ltr" id="pg-in" value="255" /></div>
+<div><label class="lb">مبنا</label><select id="pg-base" class="ltr"><option value="dec">dec</option><option value="hex">hex</option><option value="bin">bin</option><option value="oct">oct</option></select></div>
+</div>
+<div class="kv"><span>Decimal</span><b id="pg-dec" class="ltr">—</b></div>
+<div class="kv"><span>Hex</span><b id="pg-hex" class="ltr">—</b></div>
+<div class="kv"><span>Binary</span><b id="pg-bin" class="ltr">—</b></div>
+<div class="kv"><span>Octal</span><b id="pg-oct" class="ltr">—</b></div>
+</div>
+<div id="t-h" class="card" hidden>
+<div class="sect" style="margin-top:0">شاخص توده بدنی BMI</div>
+<div class="fgrid" style="grid-template-columns:1fr 1fr">
+<div><label class="lb">قد (سانتی‌متر)</label><input class="n ltr" id="bm-h" value="175" /></div>
+<div><label class="lb">وزن (کیلوگرم)</label><input class="n ltr" id="bm-w" value="70" /></div>
+</div>
+<div class="bigout" id="bm-out">—</div>
+<div class="sub" id="bm-cls"></div>
+</div>
+<div id="t-g" class="card" hidden>
+<div class="sect" style="margin-top:0">رسم نمودار — چند تابع را با ; جدا کن</div>
+<div style="display:flex;gap:8px;margin-bottom:10px;direction:ltr">
+<input id="fx" value="x^2 ; sin(x)*8" style="flex:1;min-width:0;font-family:'JetBrains Mono',monospace;font-size:14px;padding:12px;border-radius:13px;border:1px solid var(--bd);background:var(--btn);color:var(--tx)" />
+<button class="tab on" id="draw">رسم</button>
+</div>
+<div class="chips" id="gch"></div>
+<div style="display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap" class="ltr">
+<label style="font-size:12px">X <input class="n" id="x0" value="-10" style="width:80px" /> to <input class="n" id="x1" value="10" style="width:80px" /></label>
+<label style="font-size:12px">Y <input class="n" id="y0" value="-10" style="width:80px" /> to <input class="n" id="y1" value="10" style="width:80px" /></label>
+</div>
+<canvas id="plot" width="900" height="360"></canvas>
+<div id="gmsg" class="sub"></div>
+</div>
+<p style="text-align:center;font-size:11.5px;color:var(--mu2)">تک‌فایل بدون کتابخانه · فرمول‌ها همیشه چپ‌چین · متن فارسی راست‌چین</p>
+</div>
+<div class="toast" id="t"></div>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
