@@ -26,7 +26,3 @@ python -m http.server 8000
 - **اندروید:** کروم → منو → Install app
 - **آیفون:** سافاری → Share → Add to Home Screen
 - **دسکتاپ:** کروم/Edge → آیکون نصب کنار آدرس‌بار
-
-## 🛠 تکنولوژی
-
-HTML + CSS + JavaScript خالص — بدون هیچ کتابخانه‌ای. موتور محاسبه امن (Shunting-Yard، بدون `eval`).
