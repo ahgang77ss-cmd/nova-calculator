@@ -20,20 +20,27 @@ function commit(){
     addH(s, f); q.value = f.replace(/,/g,''); live(); big.classList.remove('live');
   }catch(e){ toast('خطا: '+e); }
 }
+function saveH(){ try{ localStorage.setItem('nova3', hist.innerHTML); }catch(e){} }
 function addH(a,b){
   document.querySelector('.empty')?.remove();
   let d=document.createElement('div'); d.className='h';
-  d.innerHTML='<div class="a"></div><div class="b"></div>';
+  d.innerHTML='<div class="a"></div><div class="b"></div><button class="del" title="حذف">×</button>';
   d.querySelector('.a').textContent=a; d.querySelector('.b').textContent=b;
-  d.onclick=()=>{ q.value=a; live(); q.focus(); };
   hist.prepend(d);
   while(hist.children.length>30) hist.lastChild.remove();
-  try{ localStorage.setItem('nova3', hist.innerHTML); }catch(e){}
+  saveH();
 }
+hist.addEventListener('click', e=>{
+  const del = e.target.closest('.del');
+  if(del){ del.closest('.h').remove(); saveH();
+    if(!hist.children.length) hist.innerHTML='<div class="empty">هنوز محاسبه‌ای نیست ✨</div>';
+    return; }
+  const h = e.target.closest('.h');
+  if(h){ q.value=h.querySelector('.a').textContent; live(); q.focus(); }
+});
 function loadH(){
   try{ let h=localStorage.getItem('nova3'); if(h) hist.innerHTML=h; }catch(e){}
   if(!hist.children.length) hist.innerHTML='<div class="empty">هنوز محاسبه‌ای نیست ✨</div>';
-  hist.querySelectorAll('.h').forEach(el=>el.onclick=()=>{ q.value=el.querySelector('.a').textContent; live(); });
 }
 document.querySelectorAll('[data-ins]').forEach(b=>b.onclick=()=>{
   let s=b.dataset.ins, i=q.selectionStart??q.value.length, j=q.selectionEnd??i;
@@ -44,11 +51,19 @@ $('#c').onclick=()=>{ q.value=''; live(); q.focus(); };
 $('#bk').onclick=()=>{ q.value=q.value.slice(0,-1); live(); };
 $('#eq').onclick=commit; $('#go').onclick=commit;
 q.addEventListener('input',live);
-q.addEventListener('keydown',e=>{ if(e.key==='Enter') commit(); });
-$('#deg').onclick=e=>{ DEG=!DEG; e.target.textContent=DEG?'DEG':'RAD'; e.target.classList.toggle('on',!DEG); live(); };
+q.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){ commit(); }
+  else if(e.key==='='){ e.preventDefault(); commit(); }
+  else if(e.key==='Escape'){ q.value=''; live(); }
+});
+function syncMeta(){ const m=document.querySelector('meta[name="theme-color"]'); if(m) m.content = document.documentElement.dataset.theme==='dark' ? '#070b18' : '#e9efff'; }
+try{ const st=localStorage.getItem('nova-theme'); if(st) document.documentElement.dataset.theme=st; }catch(e){}
+try{ const dg=localStorage.getItem('nova-deg'); if(dg!==null){ DEG = dg==='1'; const db=$('#deg'); db.textContent=DEG?'DEG':'RAD'; db.classList.toggle('on',!DEG); } }catch(e){}
+syncMeta();
+$('#deg').onclick=e=>{ DEG=!DEG; e.target.textContent=DEG?'DEG':'RAD'; e.target.classList.toggle('on',!DEG); try{localStorage.setItem('nova-deg',DEG?'1':'0');}catch(_){} live(); };
 $('#ch').onclick=()=>{ hist.innerHTML='<div class="empty">هنوز محاسبه‌ای نیست ✨</div>'; try{localStorage.removeItem('nova3');}catch(e){} };
 $('#cpy').onclick=()=>{ navigator.clipboard?.writeText(big.textContent); toast('کپی شد: '+big.textContent); };
-$('#th').onclick=()=>{ let h=document.documentElement; h.dataset.theme=h.dataset.theme==='dark'?'light':'dark'; };
+$('#th').onclick=()=>{ let h=document.documentElement; h.dataset.theme=h.dataset.theme==='dark'?'light':'dark'; try{localStorage.setItem('nova-theme',h.dataset.theme);}catch(e){} syncMeta(); };
 const EX=['15% of 240','20% off 99','tip 15% on 85.5','(12+8)*3/4','2^10','sqrt(144)','5 km to mile','sin(30)+cos(60)'];
 $('#chips').innerHTML = EX.map(e=>'<span class="chip"></span>').join('');
 document.querySelectorAll('#chips .chip').forEach((c,i)=>{ c.textContent=EX[i]; c.onclick=()=>{ q.value=EX[i]; live(); }; });
@@ -123,7 +138,11 @@ document.querySelectorAll('#gch .chip').forEach((c,i)=>{ c.textContent=GX[i]; c.
 $('#draw').onclick=draw;
 function draw(){
   let c2=$('#plot'); if(!c2) return;
-  let ctx=c2.getContext('2d'), W=c2.width, H=c2.height;
+  const dpr = Math.min(window.devicePixelRatio||1, 3);
+  const cssW = c2.clientWidth||860, cssH = 340;
+  c2.width = Math.round(cssW*dpr); c2.height = Math.round(cssH*dpr);
+  let ctx=c2.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  let W=cssW, H=cssH;
   let x0=parseFloat($('#x0').value), x1=parseFloat($('#x1').value), y0=parseFloat($('#y0').value), y1=parseFloat($('#y1').value);
   if(!(x1>x0)||!(y1>y0)){ $('#gmsg').textContent='بازه نامعتبر است'; return; }
   ctx.clearRect(0,0,W,H);
@@ -136,6 +155,11 @@ function draw(){
   ctx.strokeStyle='rgba(160,170,200,.6)'; ctx.lineWidth=1.5;
   ctx.beginPath(); ctx.moveTo(0,Y(0)); ctx.lineTo(W,Y(0)); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(X(0),0); ctx.lineTo(X(0),H); ctx.stroke();
+  ctx.fillStyle='rgba(140,150,180,.85)'; ctx.font='10px JetBrains Mono';
+  for(let i=0;i<=10;i+=2){
+    let xv=x0+(x1-x0)*i/10; ctx.fillText(fmt(xv), Math.min(X(xv)+4,W-34), Math.max(Y(0)-5,10));
+    let yv=y0+(y1-y0)*i/10; ctx.fillText(fmt(yv), Math.min(Math.max(X(0)+5,4),W-34), Y(yv)-4);
+  }
   let fns=$('#fx').value.split(';').map(s=>s.trim()).filter(Boolean);
   let keep=DEG; DEG=false; let ok=0;
   fns.slice(0,5).forEach((f,i)=>{

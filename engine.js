@@ -11,9 +11,10 @@ function fa2en(s){
   s = String(s);
   s = s.replace(/[۰۱۲۳۴۵۶۷۸۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
   s = s.replace(/[٠١٢٣٤٥٦٧٨٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+  s = s.replace(/٪/g,'%').replace(/٫/g,'.').replace(/٬/g,'');
   return s;
 }
-function fact(n){ if(n<0||!Number.isInteger(n)||n>170) throw 'factorial invalid'; let r=1; for(let i=2;i<=n;i++) r*=i; return r; }
+function fact(n){ if(n<0||!Number.isInteger(n)||n>170) throw 'فاکتوریل نامعتبر'; let r=1; for(let i=2;i<=n;i++) r*=i; return r; }
 function fmt(n){
   if(typeof n!=='number'||!isFinite(n)||isNaN(n)) return 'Error';
   if(Math.abs(n)<1e-12) n=0;
@@ -43,7 +44,7 @@ function smart(src){
     let v = parseFloat(m[3])*(1-parseFloat(m[1])/100);
     return { e:String(v), note:m[1]+'% off '+m[3], v:v };
   }
-  if(m = s.match(/(\d+\.?\d*)\s*\+\s*(\d+\.?\d*)\s*%$/)){
+  if(m = s.match(/(\d+\.?\d*)\s*\+\s*(\d+\.?\d*)\s*%\s*$/)){
     let v = parseFloat(m[1])*(1+parseFloat(m[2])/100);
     return { e:String(v), note:m[1]+' + '+m[2]+'%', v:v };
   }
@@ -56,7 +57,7 @@ function smart(src){
 }
 function tokenize(expr){
   expr = fa2en(expr).replace(/\s+/g,'');
-  expr = expr.replace(/pi/gi,'@').replace(/ans/gi,'#');
+  expr = expr.replace(/pi/gi,'@').replace(/π/g,'@').replace(/ans/gi,'#');
   expr = expr.replace(/(\d)([@#a-z(])/gi,'$1*$2').replace(/([)#])([(@#\d])/g,'$1*$2');
   let t=[], i=0;
   while(i<expr.length){
@@ -64,7 +65,7 @@ function tokenize(expr){
     if(/[0-9.]/.test(c)){ let n=''; while(i<expr.length&&/[0-9.]/.test(expr[i])) n+=expr[i++]; t.push({t:'n',v:parseFloat(n)}); continue; }
     if(/[@#a-zx]/i.test(c)){ let w=''; while(i<expr.length&&/[@#a-zx]/i.test(expr[i])) w+=expr[i++]; t.push({t:'w',v:w}); continue; }
     if('+-*/^()%!'.includes(c)){ t.push({t:'o',v:c}); i++; continue; }
-    throw 'invalid char';
+    throw 'کاراکتر نامعتبر';
   }
   return t;
 }
@@ -75,13 +76,13 @@ function toRPN(t){
     if(x.t==='w'){
       if(['sin','cos','tan','ln','log','sqrt','abs','exp'].includes(x.v)) s.push(x);
       else if(['@','e','#','x','X'].includes(x.v)) o.push(x);
-      else throw 'unknown: '+x.v;
+      else throw 'عبارت ناشناس: '+x.v;
       prev=x; continue;
     }
     if(x.v==='('){ s.push(x); prev=x; continue; }
     if(x.v===')'){
       while(s.length&&s[s.length-1].v!=='(') o.push(s.pop());
-      if(!s.length) throw 'paren mismatch'; s.pop();
+      if(!s.length) throw 'پرانتز ناقص'; s.pop();
       if(s.length&&s[s.length-1].t==='w') o.push(s.pop());
       prev=x; continue;
     }
@@ -96,7 +97,7 @@ function toRPN(t){
     }
     s.push(x); prev=x;
   }
-  while(s.length){ let a=s.pop(); if(a.v==='('||a.v===')') throw 'paren mismatch'; o.push(a); }
+  while(s.length){ let a=s.pop(); if(a.v==='('||a.v===')') throw 'پرانتز ناقص'; o.push(a); }
   return o;
 }
 function runRPN(r, vars){
@@ -108,7 +109,7 @@ function runRPN(r, vars){
       else if(x.v==='e') st.push(Math.E);
       else if(x.v==='#') st.push(ANS);
       else if(x.v==='x'||x.v==='X') st.push(vars&&vars.x!==undefined?vars.x:0);
-      else { let a=st.pop(); if(a===undefined) throw 'incomplete'; st.push(FNS[x.v](a)); }
+      else { let a=st.pop(); if(a===undefined) throw 'عبارت ناقص'; st.push(FNS[x.v](a)); }
     } else {
       let v=x.v;
       if(v==='u') st.push(-st.pop());
@@ -116,15 +117,15 @@ function runRPN(r, vars){
       else if(v==='%') st.push(st.pop()/100);
       else {
         let b=st.pop(), a=st.pop();
-        if(a===undefined||b===undefined) throw 'incomplete';
+        if(a===undefined||b===undefined) throw 'عبارت ناقص';
         if(v==='+') st.push(a+b); if(v==='-') st.push(a-b);
         if(v==='*') st.push(a*b);
-        if(v==='/'){ if(b===0) throw 'division by zero'; st.push(a/b); }
+        if(v==='/'){ if(b===0) throw 'تقسیم بر صفر'; st.push(a/b); }
         if(v==='^') st.push(Math.pow(a,b));
       }
     }
   }
-  if(st.length!==1) throw 'incomplete';
+  if(st.length!==1) throw 'عبارت ناقص';
   return st[0];
 }
 function EV(expr, vars){ return runRPN(toRPN(tokenize(expr)), vars||{}); }

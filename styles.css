@@ -211,10 +211,17 @@ button.k.f{color:var(--mu); font-size:15px}
 #hist::-webkit-scrollbar, body::-webkit-scrollbar{width:8px}
 #hist::-webkit-scrollbar-thumb{background:var(--mu2); border-radius:99px}
 .h{
+  position:relative;
   background:var(--btn); border:1px solid var(--bd); border-radius:14px;
-  padding:11px 14px; cursor:pointer; transition:.18s;
+  padding:11px 40px 11px 14px; cursor:pointer; transition:.18s;
   animation:slideIn .25s ease;
 }
+.del{
+  position:absolute; top:8px; right:8px; width:24px; height:24px;
+  border-radius:8px; border:1px solid transparent; background:transparent;
+  color:var(--mu2); font-size:15px; line-height:1; cursor:pointer; font-family:inherit;
+}
+.del:hover{color:#fff; background:var(--err); border-color:var(--err)}
 @keyframes slideIn{from{opacity:0; transform:translateY(8px)}}
 .h:hover{background:var(--btnh); transform:translateX(-3px); border-color:var(--a2)}
 .h .a{font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--mu); direction:ltr; text-align:left; unicode-bidi:isolate}

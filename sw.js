@@ -1,5 +1,5 @@
-const C = 'nova-v1';
-const A = ['./','./index.html','./styles.css','./engine.js','./app.js','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png'];
+const C = 'nova-v2';
+const A = ['./','./index.html','./styles.css','./engine.js','./app.js','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./icons/icon.svg'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(C).then(c => c.addAll(A)).then(() => self.skipWaiting()));
 });
